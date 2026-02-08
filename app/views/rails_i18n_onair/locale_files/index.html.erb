@@ -1,0 +1,108 @@
+<div class="d-flex justify-content-between align-items-center mb-4">
+  <h1><i class="bi bi-folder-open"></i> Locale Files</h1>
+  <div>
+    <%= button_to sync_locale_files_path, class: "btn btn-success me-2" do %>
+      <i class="bi bi-arrow-repeat me-2"></i> Sync to Database
+    <% end %>
+    <%= button_to reload_locale_files_path, class: "btn btn-info" do %>
+      <i class="bi bi-arrow-clockwise me-2"></i> Reload I18n
+    <% end %>
+  </div>
+</div>
+
+<div class="alert alert-info" role="alert">
+  <i class="bi bi-info-circle me-2"></i>
+  <strong>Locale Path:</strong> <code><%= RailsI18nOnair.configuration.locale_files_path %></code>
+</div>
+
+<div class="card shadow-sm">
+  <div class="card-header bg-primary text-white">
+    <h5 class="mb-0"><i class="bi bi-file-earmark-text"></i> YAML Files (<%= @locale_files.count %>)</h5>
+  </div>
+  <div class="card-body p-0">
+    <% if @locale_files.any? %>
+      <div class="table-responsive">
+        <table class="table table-hover mb-0">
+          <thead class="table-light">
+            <tr>
+              <th><i class="bi bi-file-earmark"></i> Filename</th>
+              <th><i class="bi bi-globe"></i> Language</th>
+              <th><i class="bi bi-hdd"></i> Size</th>
+              <th><i class="bi bi-clock"></i> Last Modified</th>
+              <th><i class="bi bi-tools"></i> Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            <% @locale_files.each do |file| %>
+              <tr>
+                <td><code><%= file[:filename] %></code></td>
+                <td><span class="badge bg-primary"><%= file[:language].upcase %></span></td>
+                <td><%= number_to_human_size(file[:size]) %></td>
+                <td>
+                  <small class="text-muted">
+                    <%= file[:modified_at].strftime("%b %d, %Y %I:%M %p") %>
+                  </small>
+                </td>
+                <td>
+                  <div class="btn-group btn-group-sm" role="group">
+                    <%= link_to locale_file_path(filename: file[:filename]), class: "btn btn-outline-info" do %>
+                      <i class="bi bi-eye"></i> View
+                    <% end %>
+                    <%= link_to edit_locale_file_path(filename: file[:filename]), class: "btn btn-outline-primary" do %>
+                      <i class="bi bi-pencil"></i> Edit
+                    <% end %>
+                  </div>
+                </td>
+              </tr>
+            <% end %>
+          </tbody>
+        </table>
+      </div>
+    <% else %>
+      <div class="text-center py-5">
+        <i class="bi bi-inbox display-1 text-muted"></i>
+        <p class="text-muted mt-3">
+          No YAML locale files found in <code><%= RailsI18nOnair.configuration.locale_files_path %></code>
+        </p>
+        <p class="text-muted">
+          Create YAML files following the pattern: <code>en.yml</code>, <code>fr.yml</code>, <code>es.yml</code>, etc.
+        </p>
+      </div>
+    <% end %>
+  </div>
+</div>
+
+<div class="row mt-4">
+  <div class="col-md-6">
+    <div class="card shadow-sm border-success">
+      <div class="card-header bg-success text-white">
+        <h6 class="mb-0"><i class="bi bi-info-circle"></i> About File Mode</h6>
+      </div>
+      <div class="card-body">
+        <p class="card-text small">
+          In <strong>File Mode</strong>, translations are stored in YAML files in your Rails application's locale directory.
+        </p>
+        <ul class="small mb-0">
+          <li>View and edit YAML files directly through this dashboard</li>
+          <li>Sync files to database for backup or migration</li>
+          <li>Reload I18n backend to apply changes without restarting server</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <div class="col-md-6">
+    <div class="card shadow-sm border-info">
+      <div class="card-header bg-info text-white">
+        <h6 class="mb-0"><i class="bi bi-lightbulb"></i> Quick Tips</h6>
+      </div>
+      <div class="card-body">
+        <ul class="small mb-0">
+          <li><strong>Naming Convention:</strong> Use ISO language codes (e.g., <code>en.yml</code>, <code>fr.yml</code>, <code>pt-BR.yml</code>)</li>
+          <li><strong>Sync:</strong> Import all files into the database for backup purposes</li>
+          <li><strong>Reload:</strong> Refresh Rails I18n backend to see changes immediately</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</div>

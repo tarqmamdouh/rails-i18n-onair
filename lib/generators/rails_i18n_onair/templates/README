@@ -1,0 +1,16 @@
+===============================================================================
+
+RailsI18nOnair has been installed!
+
+Next steps:
+
+1. Configure your storage mode in config/initializers/rails_i18n_onair.rb
+   - :file mode - Uses existing YAML files (no database needed)
+   - :database mode - Uses database storage (requires running migrations)
+
+2. If using :database mode, run migrations:
+   $ rails db:migrate
+
+3. Start managing your translations!
+
+===============================================================================

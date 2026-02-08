@@ -1,0 +1,85 @@
+<div class="d-flex justify-content-between align-items-center mb-4">
+  <h1><i class="bi bi-pencil"></i> Edit: <%= @file_info[:filename] %></h1>
+  <%= link_to locale_file_path(filename: @file_info[:filename]), class: "btn btn-outline-secondary" do %>
+    <i class="bi bi-x-circle"></i> Cancel
+  <% end %>
+</div>
+
+<div class="row">
+  <div class="col-md-9">
+    <div class="card shadow-sm">
+      <div class="card-header bg-primary text-white">
+        <h5 class="mb-0"><i class="bi bi-file-earmark-code"></i> File Editor</h5>
+      </div>
+      <div class="card-body">
+        <%= form_with url: locale_file_path(filename: @file_info[:filename]), method: :patch, local: true do |f| %>
+          <%= hidden_field_tag :filename, @file_info[:filename] %>
+
+          <div class="mb-3">
+            <%= label_tag :content, "YAML Content", class: "form-label" %>
+            <%= text_area_tag :content, @content, class: "form-control", rows: 25, style: "font-family: 'Courier New', monospace; font-size: 14px; background-color: #f8f9fa;" %>
+            <div class="form-text">
+              <i class="bi bi-info-circle"></i>
+              Edit the YAML content directly. Syntax will be validated before saving.
+            </div>
+          </div>
+
+          <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+            <%= submit_tag "Save Changes", class: "btn btn-primary btn-lg" %>
+            <%= link_to "Cancel", locale_file_path(filename: @file_info[:filename]), class: "btn btn-outline-secondary btn-lg" %>
+          </div>
+        <% end %>
+      </div>
+    </div>
+  </div>
+
+  <div class="col-md-3">
+    <div class="card shadow-sm border-info mb-3">
+      <div class="card-header bg-info text-white">
+        <h6 class="mb-0"><i class="bi bi-info-circle"></i> File Info</h6>
+      </div>
+      <div class="card-body">
+        <p class="card-text small mb-2">
+          <strong>Filename:</strong><br>
+          <code><%= @file_info[:filename] %></code>
+        </p>
+        <p class="card-text small mb-2">
+          <strong>Language:</strong><br>
+          <span class="badge bg-primary"><%= @file_info[:language].upcase %></span>
+        </p>
+        <p class="card-text small mb-0">
+          <strong>Size:</strong><br>
+          <%= number_to_human_size(@file_info[:size]) %>
+        </p>
+      </div>
+    </div>
+
+    <div class="card shadow-sm border-success mb-3">
+      <div class="card-header bg-success text-white">
+        <h6 class="mb-0"><i class="bi bi-lightbulb"></i> Tips</h6>
+      </div>
+      <div class="card-body">
+        <p class="card-text small">
+          <strong>YAML Syntax Example:</strong>
+        </p>
+        <pre class="small mb-0"><code>en:
+  hello: "Hello"
+  welcome: "Welcome"
+  user:
+    name: "Name"
+    email: "Email"</code></pre>
+      </div>
+    </div>
+
+    <div class="card shadow-sm border-warning">
+      <div class="card-header bg-warning">
+        <h6 class="mb-0"><i class="bi bi-exclamation-triangle"></i> Warning</h6>
+      </div>
+      <div class="card-body">
+        <p class="card-text small mb-0">
+          <i class="bi bi-shield-check"></i> The file will be validated for correct YAML syntax before saving. Invalid syntax will be rejected.
+        </p>
+      </div>
+    </div>
+  </div>
+</div>

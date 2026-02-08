@@ -1,0 +1,10 @@
+<div class="dashboard-header mb-4">
+  <h1><i class="bi bi-speedometer2"></i> Dashboard</h1>
+  <p class="text-muted">Welcome back, <strong><%= @translator.username %></strong>!</p>
+</div>
+
+<% if storage_mode_is_database? %>
+  <%= render "database_mode", statistics: @statistics %>
+<% elsif storage_mode_is_file? %>
+  <%= render "file_mode", statistics: @statistics %>
+<% end %>

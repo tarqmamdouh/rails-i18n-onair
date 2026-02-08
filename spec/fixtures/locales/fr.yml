@@ -1,0 +1,10 @@
+fr:
+  hello: "Bonjour"
+  welcome: "Bienvenue"
+  user:
+    name: "Nom"
+    email: "E-mail"
+    profile: "Profil"
+  messages:
+    success: "Opération terminée avec succès"
+    error: "Une erreur s'est produite"

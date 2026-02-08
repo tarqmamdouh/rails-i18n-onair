@@ -1,0 +1,96 @@
+<div class="row mb-4">
+  <div class="col-md-4">
+    <div class="card shadow-sm">
+      <div class="card-body text-center">
+        <h3 class="display-4 text-primary"><%= statistics[:file_count] %></h3>
+        <p class="card-text text-muted">YAML Files</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="col-md-4">
+    <div class="card shadow-sm">
+      <div class="card-body text-center">
+        <h3 class="display-4 text-info">
+          <i class="bi bi-folder-fill"></i>
+        </h3>
+        <p class="card-text text-muted">File Mode Active</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="col-md-4">
+    <div class="card shadow-sm">
+      <div class="card-body">
+        <h6 class="text-muted">Locale Files Path:</h6>
+        <code class="d-block"><%= statistics[:locale_files_path] %></code>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="row mb-4">
+  <div class="col-md-8">
+    <div class="card shadow-sm">
+      <div class="card-header bg-primary text-white">
+        <h5 class="mb-0"><i class="bi bi-file-earmark-text"></i> Available Locale Files</h5>
+      </div>
+      <div class="card-body">
+        <% if statistics[:files].any? %>
+          <ul class="list-group list-group-flush">
+            <% statistics[:files].each do |filename| %>
+              <li class="list-group-item d-flex justify-content-between align-items-center">
+                <span><i class="bi bi-file-earmark-code me-2"></i><%= filename %></span>
+                <%= link_to "View", locale_file_path(filename: filename), class: "btn btn-sm btn-outline-primary" %>
+              </li>
+            <% end %>
+          </ul>
+        <% else %>
+          <p class="text-muted mb-0">
+            <i class="bi bi-info-circle"></i> No YAML files found in the locale directory.
+          </p>
+        <% end %>
+      </div>
+    </div>
+  </div>
+
+  <div class="col-md-4">
+    <div class="card shadow-sm border-info">
+      <div class="card-header bg-info text-white">
+        <h6 class="mb-0"><i class="bi bi-info-circle"></i> File Mode Info</h6>
+      </div>
+      <div class="card-body">
+        <p class="card-text small">
+          In <strong>File Mode</strong>, translations are managed through YAML files in your Rails application directory.
+        </p>
+        <hr>
+        <p class="card-text small mb-0">
+          <strong>To update translations:</strong><br>
+          1. Edit YAML files directly<br>
+          2. Restart your Rails server<br>
+          3. Or use the sync feature
+        </p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="row">
+  <div class="col-12">
+    <div class="card shadow-sm">
+      <div class="card-header bg-success text-white">
+        <h5 class="mb-0"><i class="bi bi-lightning-charge"></i> Quick Actions</h5>
+      </div>
+      <div class="card-body">
+        <div class="d-grid gap-2 d-md-flex">
+          <%= link_to locale_files_path, class: "btn btn-primary" do %>
+            <i class="bi bi-folder-open me-2"></i> Browse Files
+          <% end %>
+          <%= button_to sync_locale_files_path, class: "btn btn-success" do %>
+            <i class="bi bi-arrow-repeat me-2"></i> Sync Files to Database
+          <% end %>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

@@ -1,0 +1,15 @@
+<nav class="navbar navbar-expand-lg fixed-top">
+  <div class="container-fluid">
+    <%= link_to "Rails I18n OnAir", root_path, class: "navbar-brand" %>
+
+    <div class="d-flex align-items-center ms-auto">
+      <% if current_translator %>
+        <span class="user-info">
+          <i class="bi bi-person-circle"></i>
+          <%= current_translator.username %>
+        </span>
+        <%= button_to "Sign Out", logout_path, method: :delete, class: "btn btn-outline-light btn-sm", data: { confirm: "Are you sure you want to sign out?" } %>
+      <% end %>
+    </div>
+  </div>
+</nav>

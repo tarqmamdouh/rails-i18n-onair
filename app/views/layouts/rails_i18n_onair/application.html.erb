@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Rails I18n OnAir Dashboard</title>
+    <%= csrf_meta_tags %>
+    <%= csp_meta_tag %>
+
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Bootstrap Icons -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css">
+
+    <style>
+      body {
+        background-color: #f8f9fa;
+      }
+      .navbar {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+      }
+      .navbar-brand {
+        font-weight: 700;
+        color: white !important;
+        font-size: 1.5rem;
+      }
+      .navbar .badge {
+        margin-left: 15px;
+      }
+      .navbar .user-info {
+        color: white;
+        margin-right: 10px;
+      }
+      .navbar .btn-outline-light {
+        border-color: rgba(255, 255, 255, 0.5);
+      }
+      .navbar .btn-outline-light:hover {
+        background-color: rgba(255, 255, 255, 0.2);
+      }
+      .sidebar {
+        position: fixed;
+        top: 56px;
+        left: 0;
+        bottom: 0;
+        width: 250px;
+        background-color: white;
+        border-right: 1px solid #dee2e6;
+        padding: 20px 0;
+        overflow-y: auto;
+      }
+      .sidebar .list-group-item {
+        border: none;
+        border-radius: 0;
+        padding: 12px 25px;
+      }
+      .sidebar .list-group-item:hover {
+        background-color: #f8f9fa;
+      }
+      .sidebar .list-group-item.active {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        border: none;
+      }
+      .main-content {
+        margin-left: 250px;
+        margin-top: 56px;
+        padding: 30px;
+        min-height: calc(100vh - 56px);
+      }
+      .mode-indicator {
+        background: white;
+        padding: 10px 20px;
+        border-radius: 5px;
+        margin-bottom: 20px;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+      }
+      .mode-indicator .badge {
+        font-size: 14px;
+        padding: 6px 12px;
+      }
+      .badge.mode-database {
+        background-color: #28a745;
+      }
+      .badge.mode-file {
+        background-color: #17a2b8;
+      }
+    </style>
+  </head>
+
+  <body>
+    <!-- Navbar -->
+    <%= render "rails_i18n_onair/shared/navbar" %>
+
+    <!-- Sidebar -->
+    <%= render "rails_i18n_onair/shared/sidebar" %>
+
+    <!-- Main Content -->
+    <main class="main-content">
+      <%= render "rails_i18n_onair/shared/flash_messages" %>
+
+      <div class="mode-indicator">
+        <i class="bi bi-server me-2"></i>
+        <strong>Storage Mode:</strong>
+        <% if storage_mode_is_database? %>
+          <span class="badge mode-database">Database</span>
+          <small class="text-muted ms-2">Translations stored in PostgreSQL</small>
+        <% else %>
+          <span class="badge mode-file">File</span>
+          <small class="text-muted ms-2">Translations loaded from YAML files</small>
+        <% end %>
+      </div>
+
+      <%= yield %>
+    </main>
+
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+  </body>
+</html>

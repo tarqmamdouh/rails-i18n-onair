@@ -1,0 +1,26 @@
+<aside class="sidebar">
+  <div class="list-group list-group-flush">
+    <%= link_to root_path, class: "list-group-item list-group-item-action #{current_page?(root_path) ? 'active' : ''}" do %>
+      <i class="bi bi-speedometer2 me-2"></i> Dashboard
+    <% end %>
+
+    <% if storage_mode_is_database? %>
+      <%= link_to translations_path, class: "list-group-item list-group-item-action #{current_page?(translations_path) ? 'active' : ''}" do %>
+        <i class="bi bi-database me-2"></i> Translations
+      <% end %>
+    <% end %>
+
+    <% if storage_mode_is_file? %>
+      <%= link_to locale_files_path, class: "list-group-item list-group-item-action #{current_page?(locale_files_path) ? 'active' : ''}" do %>
+        <i class="bi bi-file-earmark-text me-2"></i> Locale Files
+      <% end %>
+    <% end %>
+
+    <div class="list-group-item disabled">
+      <small class="text-muted">
+        <i class="bi bi-gear me-2"></i> Settings
+        <span class="badge bg-secondary ms-2">Coming Soon</span>
+      </small>
+    </div>
+  </div>
+</aside>
