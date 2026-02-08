@@ -30,7 +30,7 @@ namespace :rails_i18n_onair do
         require "fileutils"
 
         # Get the migrations path from the gem
-        gem_root = File.expand_path("../../..", __dir__)
+        gem_root = File.expand_path("../..", __dir__)
         migrations_path = File.join(gem_root, "db", "migrate")
 
         # Get the target Rails app migrations path

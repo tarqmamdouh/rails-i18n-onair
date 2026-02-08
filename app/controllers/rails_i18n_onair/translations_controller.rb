@@ -22,6 +22,9 @@ module RailsI18nOnair
       @translation = RailsI18nOnair::Translation.new(translation_params)
 
       if @translation.save
+        # Invalidate cache for the newly created locale
+        reload_backend_locale(@translation.language)
+
         redirect_to translations_path, notice: "Translation for #{@translation.language} created successfully"
       else
         flash.now[:alert] = "Failed to create translation"
@@ -39,6 +42,9 @@ module RailsI18nOnair
         new_translation_data = parse_translation_input(params[:translation][:translation_data])
 
         if @translation.update(translation: new_translation_data)
+          # Invalidate only the updated locale's cache
+          reload_backend_locale(@translation.language)
+
           redirect_to translation_path(@translation), notice: "Translation updated successfully"
         else
           flash.now[:alert] = "Failed to update translation"
@@ -54,6 +60,9 @@ module RailsI18nOnair
       language = @translation.language
 
       if @translation.destroy
+        # Invalidate cache for the deleted locale
+        reload_backend_locale(language)
+
         redirect_to translations_path, notice: "Translation for #{language} deleted successfully"
       else
         redirect_to translations_path, alert: "Failed to delete translation"
@@ -96,6 +105,13 @@ module RailsI18nOnair
         end
       end
       result
+    end
+
+    def reload_backend_locale(locale)
+      # Reload only the specific locale in the I18n backend
+      if I18n.backend.respond_to?(:reload!)
+        I18n.backend.reload!(locale: locale)
+      end
     end
   end
 end

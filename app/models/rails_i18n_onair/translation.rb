@@ -6,6 +6,37 @@ module RailsI18nOnair
     # Scope to get all available languages
     scope :available_languages, -> { pluck(:language) }
 
+    # Optimized query methods for selective loading
+    class << self
+      # Load a single locale efficiently
+      def load_locale(locale)
+        find_by(language: locale.to_s)
+      end
+
+      # Load multiple locales in one query
+      def load_locales(locales)
+        where(language: locales.map(&:to_s))
+          .pluck(:language, :translation)
+          .to_h
+      end
+
+      # Check if locale exists without loading data
+      def locale_exists?(locale)
+        exists?(language: locale.to_s)
+      end
+
+      # Get specific translation key using JSONB query (leverages GIN index)
+      def lookup_key(locale, key_path)
+        translation_record = find_by(language: locale.to_s)
+        return nil unless translation_record
+
+        keys = key_path.split('.')
+        keys.reduce(translation_record.translation) { |hash, key|
+          hash&.dig(key) || hash&.dig(key.to_sym)
+        }
+      end
+    end
+
     # Convert YAML file to JSON and store in database
     def self.import_from_yaml(language, yaml_file_path)
       yaml_content = YAML.load_file(yaml_file_path)
