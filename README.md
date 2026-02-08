@@ -157,7 +157,8 @@ This will:
 - `en.yml` - English
 - `fr.yml` - French
 - `es.yml` - Spanish
-- `es-MX.yml` - Spanish (Mexico)
+- `ar.yml` - Arabic
+- `en-US.yml` - English (United States)
 - `pt-BR.yml` - Portuguese (Brazil)
 
 **Example output:**

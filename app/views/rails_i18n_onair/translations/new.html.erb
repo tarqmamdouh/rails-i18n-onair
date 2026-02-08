@@ -15,10 +15,10 @@
         <%= form_with model: @translation, url: translations_path, method: :post, local: true do |f| %>
           <div class="mb-4">
             <%= f.label :language, "Language Code", class: "form-label" %>
-            <%= f.text_field :language, class: "form-control", placeholder: "e.g., en, fr, es, pt-BR", required: true %>
+            <%= f.text_field :language, class: "form-control", placeholder: "e.g., en, fr, es, ar, en-US", required: true %>
             <div class="form-text">
               <i class="bi bi-info-circle"></i>
-              Use ISO 639-1 language codes (e.g., en, fr, es) or with region codes (e.g., pt-BR, en-US)
+              Use ISO 639-1 language codes (e.g., en, fr, es, ar) or with region (e.g., en-US, pt-BR)
             </div>
           </div>
 

@@ -11,7 +11,7 @@ RailsI18nOnair::Engine.routes.draw do
   resources :translations, only: [:index, :show, :new, :create, :edit, :update, :destroy]
 
   # File mode: Locale file management
-  resources :locale_files, only: [:index, :show, :edit, :update], param: :filename do
+  resources :locale_files, only: [:index, :show, :edit, :update], param: :locale do
     collection do
       post :sync
       post :reload

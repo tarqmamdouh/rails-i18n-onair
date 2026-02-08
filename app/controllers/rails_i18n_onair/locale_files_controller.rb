@@ -33,9 +33,10 @@ module RailsI18nOnair
       end
 
       new_content = params[:content]
+      filename = "#{params[:locale]}.yml"
 
-      if @file_manager.write_file(params[:filename], new_content)
-        redirect_to locale_file_path(filename: params[:filename]), notice: "File updated successfully"
+      if @file_manager.write_file(filename, new_content)
+        redirect_to locale_file_path(locale: params[:locale]), notice: "File updated successfully"
       else
         flash.now[:alert] = "Failed to update file: #{@file_manager.errors.join(', ')}"
         @content = new_content
@@ -70,7 +71,8 @@ module RailsI18nOnair
     end
 
     def set_file_info
-      @file_info = @file_manager.get_file_info(params[:filename])
+      filename = "#{params[:locale]}.yml"
+      @file_info = @file_manager.get_file_info(filename)
     end
   end
 end

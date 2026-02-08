@@ -6,7 +6,8 @@
       "Bash(rvm list:*)",
       "Bash(source:*)",
       "Bash(rvm use:*)",
-      "Bash(cat:*)"
+      "Bash(cat:*)",
+      "Bash(bin/rails routes:*)"
     ]
   }
 }

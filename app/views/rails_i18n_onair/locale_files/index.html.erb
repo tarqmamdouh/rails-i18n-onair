@@ -45,10 +45,10 @@
                 </td>
                 <td>
                   <div class="btn-group btn-group-sm" role="group">
-                    <%= link_to locale_file_path(filename: file[:filename]), class: "btn btn-outline-info" do %>
+                    <%= link_to locale_file_path(locale: file[:language]), class: "btn btn-outline-info" do %>
                       <i class="bi bi-eye"></i> View
                     <% end %>
-                    <%= link_to edit_locale_file_path(filename: file[:filename]), class: "btn btn-outline-primary" do %>
+                    <%= link_to edit_locale_file_path(locale: file[:language]), class: "btn btn-outline-primary" do %>
                       <i class="bi bi-pencil"></i> Edit
                     <% end %>
                   </div>
@@ -98,7 +98,7 @@
       </div>
       <div class="card-body">
         <ul class="small mb-0">
-          <li><strong>Naming Convention:</strong> Use ISO language codes (e.g., <code>en.yml</code>, <code>fr.yml</code>, <code>pt-BR.yml</code>)</li>
+          <li><strong>Naming Convention:</strong> Use ISO language codes (e.g., <code>en.yml</code>, <code>fr.yml</code>, <code>ar.yml</code>) or with region (e.g., <code>en-US.yml</code>, <code>pt-BR.yml</code>)</li>
           <li><strong>Sync:</strong> Import all files into the database for backup purposes</li>
           <li><strong>Reload:</strong> Refresh Rails I18n backend to see changes immediately</li>
         </ul>

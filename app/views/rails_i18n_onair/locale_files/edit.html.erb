@@ -1,6 +1,6 @@
 <div class="d-flex justify-content-between align-items-center mb-4">
   <h1><i class="bi bi-pencil"></i> Edit: <%= @file_info[:filename] %></h1>
-  <%= link_to locale_file_path(filename: @file_info[:filename]), class: "btn btn-outline-secondary" do %>
+  <%= link_to locale_file_path(locale: @file_info[:language]), class: "btn btn-outline-secondary" do %>
     <i class="bi bi-x-circle"></i> Cancel
   <% end %>
 </div>
@@ -12,8 +12,8 @@
         <h5 class="mb-0"><i class="bi bi-file-earmark-code"></i> File Editor</h5>
       </div>
       <div class="card-body">
-        <%= form_with url: locale_file_path(filename: @file_info[:filename]), method: :patch, local: true do |f| %>
-          <%= hidden_field_tag :filename, @file_info[:filename] %>
+        <%= form_with url: locale_file_path(locale: @file_info[:language]), method: :patch, local: true do |f| %>
+          <%= hidden_field_tag :locale, @file_info[:language] %>
 
           <div class="mb-3">
             <%= label_tag :content, "YAML Content", class: "form-label" %>
@@ -26,7 +26,7 @@
 
           <div class="d-grid gap-2 d-md-flex justify-content-md-end">
             <%= submit_tag "Save Changes", class: "btn btn-primary btn-lg" %>
-            <%= link_to "Cancel", locale_file_path(filename: @file_info[:filename]), class: "btn btn-outline-secondary btn-lg" %>
+            <%= link_to "Cancel", locale_file_path(locale: @file_info[:language]), class: "btn btn-outline-secondary btn-lg" %>
           </div>
         <% end %>
       </div>
