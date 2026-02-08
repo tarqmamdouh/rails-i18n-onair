@@ -22,21 +22,74 @@ And then execute:
 $ bundle install
 ```
 
-Run the install generator:
+### Quick Install (Recommended)
+
+Run the install generator, which will guide you through the setup:
 
 ```bash
 $ rails generate rails_i18n_onair:install
 ```
 
-This will:
-- Create an initializer at `config/initializers/rails_i18n_onair.rb`
-- Copy migrations (if using database mode)
+This interactive installer will:
 
-**If using database mode**, run the migrations:
+1. Create an initializer at `config/initializers/rails_i18n_onair.rb`
+2. Ask you to choose storage mode (file or database)
+3. Install the translator migration (always required for authentication)
+4. Install the translation migration (only if database mode selected)
+5. Mount the engine at `/i18n` in your routes
+6. Prompt to run migrations
+7. Create an initial translator account so you can log in immediately
+
+### Advanced Install Options
+
+**Specify storage mode:**
+
+```bash
+$ rails generate rails_i18n_onair:install --storage-mode=database
+$ rails generate rails_i18n_onair:install --storage-mode=file
+```
+
+**Skip translator account creation:**
+
+```bash
+$ rails generate rails_i18n_onair:install --skip-translator
+```
+
+### Manual Migration Installation
+
+If you need to install migrations separately:
+
+```bash
+# Install translator migration (always required)
+$ rails rails_i18n_onair:install:migrations:translator
+
+# Install translation migration (database mode only)
+$ rails rails_i18n_onair:install:migrations:translation
+
+# Or install both
+$ rails rails_i18n_onair:install:migrations:all
+```
+
+Then run:
 
 ```bash
 $ rails db:migrate
 ```
+
+### Mounting the Engine
+
+The install generator automatically mounts the engine, but if you need to do it manually:
+
+```ruby
+# config/routes.rb
+Rails.application.routes.draw do
+  mount RailsI18nOnair::Engine, at: "/i18n"
+
+  # Your other routes...
+end
+```
+
+Access the dashboard at `http://localhost:3000/i18n`
 
 ## Configuration
 

@@ -1,16 +1,48 @@
 ===============================================================================
 
-RailsI18nOnair has been installed!
+✓ RailsI18nOnair has been installed successfully!
 
 Next steps:
 
-1. Configure your storage mode in config/initializers/rails_i18n_onair.rb
-   - :file mode - Uses existing YAML files (no database needed)
-   - :database mode - Uses database storage (requires running migrations)
+1. The engine has been mounted at /i18n
+   Visit http://localhost:3000/i18n to access the dashboard
 
-2. If using :database mode, run migrations:
-   $ rails db:migrate
+2. Configuration
+   Storage mode is configured in: config/initializers/rails_i18n_onair.rb
 
-3. Start managing your translations!
+   Available modes:
+   - :file (default) - Uses YAML files, no database needed
+   - :database - Uses PostgreSQL database with JSONB
+
+3. Migrations
+   ✓ Translator migration installed (required for authentication)
+   <%= options[:storage_mode] == 'database' ? '✓' : '○' %> Translation migration <%= options[:storage_mode] == 'database' ? 'installed' : 'skipped (file mode)' %>
+
+4. Translator Account
+   <%= options[:skip_translator] ? '○ Skipped - Create manually with:' : '✓ Created - Use the credentials you provided to log in' %>
+   <% if options[:skip_translator] %>
+   RailsI18nOnair::Translator.create!(username: "admin", password: "your_password")
+   <% end %>
+
+5. Start the server
+   $ rails server
+
+   Then visit: http://localhost:3000/i18n
+
+-------------------------------------------------------------------------------
+
+Available Rake Tasks:
+
+# Install migrations separately
+$ rails rails_i18n_onair:install:migrations:translator  # Always needed
+$ rails rails_i18n_onair:install:migrations:translation # Database mode only
+
+# Import locale files to database (database mode only)
+$ rails rails_i18n_onair:import:all          # Import all locale files
+$ rails rails_i18n_onair:import:language[en] # Import specific language
+
+-------------------------------------------------------------------------------
+
+Need help? Check the README.md for full documentation.
 
 ===============================================================================
