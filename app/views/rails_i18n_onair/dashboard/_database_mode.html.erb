@@ -41,7 +41,7 @@
             <% statistics[:languages].each do |lang| %>
               <li class="list-group-item d-flex justify-content-between align-items-center">
                 <span><i class="bi bi-translate me-2"></i><%= lang.upcase %></span>
-                <%= link_to "View", "#", class: "btn btn-sm btn-outline-primary" %>
+                <%= link_to "View", translations_path(lang), class: "btn btn-sm btn-outline-primary" %>
               </li>
             <% end %>
           </ul>

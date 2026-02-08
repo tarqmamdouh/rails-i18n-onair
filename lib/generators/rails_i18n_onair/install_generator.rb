@@ -12,7 +12,13 @@ module RailsI18nOnair
 
       def copy_initializer
         @storage_mode = options[:storage_mode]
-        template "rails_i18n_onair.rb", "config/initializers/rails_i18n_onair.rb"
+        if @storage_mode == "database"
+          say "Storage mode set to 'database'. Translation migration will be installed.", :green
+          template "rails_i18n_onair_database.rb", "config/initializers/rails_i18n_onair.rb"
+        else      
+          say "Storage mode set to 'file'. Translation migration will be skipped.", :green
+          template "rails_i18n_onair_file.rb", "config/initializers/rails_i18n_onair.rb"
+        end
       end
 
       def install_migrations

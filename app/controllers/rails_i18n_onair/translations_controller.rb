@@ -11,7 +11,7 @@ module RailsI18nOnair
     end
 
     def show
-      @translation_keys = flatten_hash(@translation.translation)
+      @parsed_data = @translation.translation || {}
     end
 
     def new
@@ -33,27 +33,34 @@ module RailsI18nOnair
     end
 
     def edit
-      @translation_json = JSON.pretty_generate(@translation.translation)
+      @parsed_data = @translation.translation || {}
     end
 
     def update
-      begin
-        # Parse JSON/YAML input
-        new_translation_data = parse_translation_input(params[:translation][:translation_data])
+      # Convert nested form params back to hash
+      new_translation_data = reconstruct_hash_from_params(params[:translations] || {})
 
-        if @translation.update(translation: new_translation_data)
-          # Invalidate only the updated locale's cache
-          reload_backend_locale(@translation.language)
+      if new_translation_data.empty?
+        flash.now[:alert] = "No translation data received. Please ensure all fields are filled."
+        @parsed_data = @translation.translation || {}
+        render :edit, status: :unprocessable_entity
+        return
+      end
 
-          redirect_to translation_path(@translation), notice: "Translation updated successfully"
-        else
-          flash.now[:alert] = "Failed to update translation"
-          render :edit, status: :unprocessable_entity
-        end
-      rescue JSON::ParserError, Psych::SyntaxError => e
-        flash.now[:alert] = "Invalid JSON/YAML format: #{e.message}"
+      if @translation.update(translation: new_translation_data)
+        # Invalidate only the updated locale's cache
+        reload_backend_locale(@translation.language)
+
+        redirect_to translation_path(@translation), notice: "Translation updated successfully"
+      else
+        flash.now[:alert] = "Failed to update translation"
+        @parsed_data = new_translation_data
         render :edit, status: :unprocessable_entity
       end
+    rescue StandardError => e
+      flash.now[:alert] = "Error processing translations: #{e.message}"
+      @parsed_data = @translation.translation || {}
+      render :edit, status: :unprocessable_entity
     end
 
     def destroy
@@ -78,7 +85,16 @@ module RailsI18nOnair
     def translation_params
       params.require(:translation).permit(:language, :translation_data).tap do |whitelisted|
         if whitelisted[:translation_data].present?
-          whitelisted[:translation] = parse_translation_input(whitelisted[:translation_data])
+          parsed = parse_translation_input(whitelisted[:translation_data])
+          language = whitelisted[:language]
+
+          # Wrap with language key if not already present (to match YAML file structure)
+          if language.present? && parsed.is_a?(Hash) && !parsed.key?(language)
+            whitelisted[:translation] = { language => parsed }
+          else
+            whitelisted[:translation] = parsed
+          end
+
           whitelisted.delete(:translation_data)
         end
       end
@@ -94,16 +110,17 @@ module RailsI18nOnair
       end
     end
 
-    def flatten_hash(hash, parent_key = "", result = {})
-      hash.each do |key, value|
-        new_key = parent_key.empty? ? key.to_s : "#{parent_key}.#{key}"
+    def reconstruct_hash_from_params(params_hash)
+      result = {}
 
-        if value.is_a?(Hash)
-          flatten_hash(value, new_key, result)
+      params_hash.each do |key, value|
+        if value.is_a?(ActionController::Parameters) || value.is_a?(Hash)
+          result[key] = reconstruct_hash_from_params(value)
         else
-          result[new_key] = value
+          result[key] = value
         end
       end
+
       result
     end
 

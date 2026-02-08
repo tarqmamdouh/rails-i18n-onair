@@ -24,7 +24,7 @@
     <div class="card shadow-sm">
       <div class="card-body">
         <h6 class="text-muted">Total Keys</h6>
-        <h3><%= @translation_keys.count %></h3>
+        <h3><%= translation_key_count(@translation) %></h3>
       </div>
     </div>
   </div>
@@ -39,37 +39,39 @@
   </div>
 </div>
 
-<div class="card shadow-sm">
-  <div class="card-header bg-primary text-white">
-    <h5 class="mb-0"><i class="bi bi-key-fill"></i> Translation Keys & Values</h5>
-  </div>
-  <div class="card-body">
-    <% if @translation_keys.any? %>
+<% if @parsed_data.present? %>
+  <div class="card shadow-sm mb-4">
+    <div class="card-header bg-success text-white">
+      <h5 class="mb-0"><i class="bi bi-translate"></i> Parsed Translation</h5>
+    </div>
+    <div class="card-body">
       <div class="table-responsive">
         <table class="table table-striped table-hover">
           <thead>
             <tr>
-              <th style="width: 40%">Key Path</th>
-              <th style="width: 60%">Value</th>
+              <th>Key</th>
+              <th>Value</th>
             </tr>
           </thead>
           <tbody>
-            <% @translation_keys.sort.each do |key_path, value| %>
-              <tr>
-                <td><code><%= key_path %></code></td>
-                <td><%= value %></td>
-              </tr>
-            <% end %>
+            <%= render_yaml_tree(@parsed_data) %>
           </tbody>
         </table>
       </div>
-    <% else %>
+    </div>
+  </div>
+<% else %>
+  <div class="card shadow-sm mb-4">
+    <div class="card-header bg-success text-white">
+      <h5 class="mb-0"><i class="bi bi-translate"></i> Parsed Translation</h5>
+    </div>
+    <div class="card-body">
       <div class="text-center py-4">
         <p class="text-muted mb-0"><i class="bi bi-info-circle"></i> No translation keys found</p>
       </div>
-    <% end %>
+    </div>
   </div>
-</div>
+<% end %>
 
 <div class="mt-4">
   <div class="card shadow-sm border-danger">

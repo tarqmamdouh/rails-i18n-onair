@@ -27,7 +27,12 @@ module RailsI18nOnair
       end
 
       locale_files.each do |file_path|
-        import_file(file_path)
+        language_code = extract_language_code(File.basename(file_path))
+        Translation.import_from_yaml(language_code, file_path)
+        @imported_count += 1
+      rescue => e
+        @errors << { file: file_path, error: e.message }
+        @skipped_count += 1
       end
 
       {
@@ -35,62 +40,6 @@ module RailsI18nOnair
         skipped: @skipped_count,
         errors: @errors
       }
-    end
-
-    # Import a specific locale file
-    def import_file(file_path)
-      file_name = File.basename(file_path)
-      language_code = extract_language_code(file_name)
-
-      unless language_code
-        @skipped_count += 1
-        @errors << "Skipped #{file_name}: Invalid file name format"
-        return false
-      end
-
-      begin
-        yaml_content = YAML.load_file(file_path)
-
-        # The YAML file should have the language code as the root key
-        # e.g., { "en" => { "hello" => "Hello" } }
-        translation_data = yaml_content[language_code] || yaml_content[language_code.to_sym] || yaml_content
-
-        # Check if translation_data is a hash
-        unless translation_data.is_a?(Hash)
-          @skipped_count += 1
-          @errors << "Skipped #{file_name}: Invalid YAML structure (expected Hash)"
-          return false
-        end
-
-        # Create or update the translation record
-        translation = RailsI18nOnair::Translation.find_or_initialize_by(language: language_code)
-        translation.translation = translation_data
-
-        if translation.save
-          @imported_count += 1
-          true
-        else
-          @skipped_count += 1
-          @errors << "Failed to save #{file_name}: #{translation.errors.full_messages.join(', ')}"
-          false
-        end
-      rescue => e
-        @skipped_count += 1
-        @errors << "Error importing #{file_name}: #{e.message}"
-        false
-      end
-    end
-
-    # Import a specific language
-    def import_language(language_code)
-      file_name = "#{language_code}.yml"
-      file_path = File.join(full_locale_path, file_name)
-
-      unless File.exist?(file_path)
-        raise Error, "Locale file not found: #{file_path}"
-      end
-
-      import_file(file_path)
     end
 
     private
