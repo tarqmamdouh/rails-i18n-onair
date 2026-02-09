@@ -44,6 +44,14 @@ module RailsI18nOnair
       @file_backend.load_translations(*filenames)
     end
 
+    def initialized?
+      current_backend.initialized?
+    end
+
+    def eager_load!
+      current_backend.eager_load!
+    end
+
     # Database Backend Implementation with Three-Tier Caching
     class DatabaseBackend < I18n::Backend::Simple
       def initialize

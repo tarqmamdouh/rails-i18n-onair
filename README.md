@@ -106,6 +106,20 @@ RailsI18nOnair.configure do |config|
   # Path to locale files when using file mode
   # Default: "config/locales"
   config.locale_files_path = "config/locales"
+
+  # Enable the backend to intercept t() calls in views and controllers
+  # When enabled, the gem installs a custom I18n backend that delegates
+  # to either the database or file backend based on storage_mode
+  # Default: false
+  config.enable_backend = false
+
+  # Enable caching of translations (recommended for production)
+  # Default: true
+  config.cache_translations = true
+
+  # Lazy load locales on-demand instead of loading all at startup
+  # Default: true
+  config.lazy_load_locales = true
 end
 ```
 
@@ -131,6 +145,7 @@ Stores translations in PostgreSQL with JSONB. Perfect for:
 
 ```ruby
 config.storage_mode = :database
+config.enable_backend = true
 ```
 
 **Note:** Database mode requires PostgreSQL for JSONB support.

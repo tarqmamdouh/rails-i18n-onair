@@ -40,7 +40,7 @@
                 <td>
                   <span class="badge bg-primary"><%= translation.language.upcase %></span>
                 </td>
-                <td><%= translation.translation.keys.count %> keys</td>
+                <td><%= translation_key_count(translation) %> keys</td>
                 <td>
                   <small class="text-muted">
                     <%= time_ago_in_words(translation.updated_at) %> ago

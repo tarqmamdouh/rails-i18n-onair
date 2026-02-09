@@ -31,7 +31,7 @@ module RailsI18nOnair
     end
 
     def backend_enabled?
-      @enable_backend && database_mode?
+      @enable_backend
     end
   end
 

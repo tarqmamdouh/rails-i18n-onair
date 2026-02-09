@@ -60,6 +60,7 @@ module RailsI18nOnair
     rescue StandardError => e
       flash.now[:alert] = "Error processing translations: #{e.message}"
       @parsed_data = @translation.translation || {}
+      raise e if Rails.env.development? # Re-raise in development for debugging
       render :edit, status: :unprocessable_entity
     end
 
@@ -125,9 +126,8 @@ module RailsI18nOnair
     end
 
     def reload_backend_locale(locale)
-      # Reload only the specific locale in the I18n backend
       if I18n.backend.respond_to?(:reload!)
-        I18n.backend.reload!(locale: locale)
+        I18n.backend.reload!
       end
     end
   end

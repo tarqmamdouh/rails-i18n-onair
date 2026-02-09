@@ -40,7 +40,7 @@ module RailsI18nOnair
     # Convert YAML file to JSON and store in database
     def self.import_from_yaml(language, yaml_file_path)
       yaml_content = YAML.load_file(yaml_file_path)
-      translation_data = yaml_content[language] || yaml_content[language.to_sym] || yaml_content
+      translation_data = yaml_content
 
       create_or_update_by_language(language, translation_data)
     end
