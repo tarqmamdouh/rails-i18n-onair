@@ -1,4 +1,6 @@
-# RailsI18nOnair
+# Rails I18n OnAir
+
+![Rails I18n OnAir](app/assets/images/rails_i18n_onair/banner.svg)
 
 A comprehensive i18n management solution for Rails monolith applications.
 

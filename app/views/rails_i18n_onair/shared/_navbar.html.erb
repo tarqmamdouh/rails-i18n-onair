@@ -1,6 +1,8 @@
 <nav class="navbar navbar-expand-lg fixed-top">
   <div class="container-fluid">
-    <%= link_to "Rails I18n OnAir", root_path, class: "navbar-brand" %>
+    <%= link_to root_path, class: "navbar-brand" do %>
+      <%= image_tag "rails_i18n_onair/banner.svg", height: 40, alt: "Rails I18n OnAir" %>
+    <% end %>
 
     <div class="d-flex align-items-center ms-auto">
       <% if current_translator %>
