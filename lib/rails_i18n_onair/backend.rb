@@ -10,11 +10,22 @@ module RailsI18nOnair
   class DatabaseBackend < I18n::Backend::Simple
     def initialize
       super
+      @initialized = true  # Prevent Simple from loading YAML files — we only use the DB
       @memory_cache = {}
       @loaded_locales = Set.new
       @mutex = Mutex.new
 
       load_translations_from_database if RailsI18nOnair.configuration.lazy_load_locales == false
+    end
+
+    # Override: never load YAML files. This backend is DB-only;
+    # the Chain's second backend (file_backend) handles YAML fallback.
+    def init_translations
+      @initialized = true
+    end
+
+    def load_translations(*_filenames)
+      # no-op — YAML loading belongs to the file backend in the Chain
     end
 
     def available_locales
