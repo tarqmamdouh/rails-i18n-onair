@@ -1,6 +1,6 @@
 module RailsI18nOnair
   class Configuration
-    attr_accessor :storage_mode, :locale_files_path, :cache_translations, :lazy_load_locales
+    attr_accessor :storage_mode, :locale_files_path, :cache_translations, :lazy_load_locales, :live_ui
 
     # Storage modes:
     # :database - Use database (translations table) for storing translations
@@ -12,6 +12,7 @@ module RailsI18nOnair
       @locale_files_path = "config/locales" # Default Rails locale path
       @cache_translations = true # Enable caching by default
       @lazy_load_locales = true # Lazy load locales on-demand
+      @live_ui = false # Live UI inline editing disabled by default
     end
 
     def storage_mode=(mode)
@@ -27,6 +28,10 @@ module RailsI18nOnair
 
     def file_mode?
       @storage_mode == :file
+    end
+
+    def live_ui?
+      @live_ui == true
     end
 
   end

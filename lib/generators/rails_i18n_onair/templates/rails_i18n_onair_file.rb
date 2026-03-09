@@ -8,4 +8,8 @@ RailsI18nOnair.configure do |config|
   # Path to locale files when using file mode
   # Default: "config/locales"
   config.locale_files_path = "config/locales"
+
+  # Enable Live UI to allow signed-in translators to edit translations
+  # directly from the application's pages (BETA)
+  # config.live_ui = false
 end

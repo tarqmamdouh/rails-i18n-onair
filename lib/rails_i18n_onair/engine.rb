@@ -16,6 +16,24 @@ module RailsI18nOnair
       load "tasks/rails_i18n_onair_tasks.rake"
     end
 
+    # ── Live UI ──
+    # Prepend our translation helper override into ActionView so that t()
+    # wraps output in editable <span> tags when a translator is signed in.
+    initializer "rails_i18n_onair.live_ui_helper" do
+      ActiveSupport.on_load(:action_view) do
+        ActionView::Helpers::TranslationHelper.prepend(
+          RailsI18nOnair::LiveUi::TranslationHelper
+        )
+      end
+    end
+
+    # Append Live UI middleware to the end of the stack. The session
+    # middleware (CookieStore, CacheStore, etc.) is always earlier in the
+    # stack, so env["rack.session"] is populated by the time we run.
+    initializer "rails_i18n_onair.live_ui_middleware" do |app|
+      app.middleware.use RailsI18nOnair::LiveUi::Middleware
+    end
+
     # When storage_mode is :database, chain our DB backend in front of the
     # existing file backend so t(:key) checks the DB first and falls back
     # to YAML files for any missing keys.

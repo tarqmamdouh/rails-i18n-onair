@@ -16,11 +16,8 @@
       <% end %>
     <% end %>
 
-    <div class="list-group-item disabled">
-      <small class="text-muted">
-        <i class="bi bi-gear me-2"></i> Settings
-        <span class="badge bg-secondary ms-2">Coming Soon</span>
-      </small>
-    </div>
+    <%= link_to settings_path, class: "list-group-item list-group-item-action #{current_page?(settings_path) ? 'active' : ''}" do %>
+      <i class="bi bi-gear me-2"></i> Settings
+    <% end %>
   </div>
 </aside>

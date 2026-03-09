@@ -4,6 +4,7 @@ require "rails_i18n_onair/backend"
 require "rails_i18n_onair/importer"
 require "rails_i18n_onair/file_manager"
 require "rails_i18n_onair/current"
+require "rails_i18n_onair/live_ui"
 
 module RailsI18nOnair
   class Error < StandardError; end

@@ -1,0 +1,127 @@
+<div class="dashboard-header mb-4">
+  <h1><i class="bi bi-gear"></i> Settings</h1>
+  <p class="text-muted">Configure your Rails I18n OnAir preferences</p>
+</div>
+
+<div class="row">
+  <div class="col-lg-8">
+    <!-- Live UI Setting -->
+    <div class="card shadow-sm mb-4">
+      <div class="card-body">
+        <div class="d-flex justify-content-between align-items-start">
+          <div class="flex-grow-1">
+            <div class="d-flex align-items-center mb-2">
+              <h5 class="mb-0 me-2">
+                <i class="bi bi-cursor-text me-1"></i> Live UI
+              </h5>
+              <span class="badge bg-warning text-dark" style="font-size: 0.65rem; letter-spacing: 0.5px; vertical-align: middle;">BETA</span>
+            </div>
+            <p class="text-muted mb-3">
+              Edit translations directly from your application's live pages. When enabled, signed-in
+              translators see a floating toolbar on every page of the host app. Activating edit mode
+              highlights every <code>t()</code> call &mdash; click any text to change its value
+              in-place. Changes are saved instantly to the
+              <strong><%= RailsI18nOnair.configuration.database_mode? ? "database" : "YAML file" %></strong>.
+            </p>
+            <div class="small">
+              <% if @live_ui_enabled %>
+                <span class="text-success"><i class="bi bi-check-circle-fill me-1"></i> Live UI is currently <strong>enabled</strong></span>
+              <% else %>
+                <span class="text-muted"><i class="bi bi-circle me-1"></i> Live UI is currently <strong>disabled</strong></span>
+              <% end %>
+            </div>
+          </div>
+
+          <div class="ms-4 pt-1">
+            <%= form_tag(settings_path, method: :patch, class: "d-inline") do %>
+              <%= hidden_field_tag :setting, "live_ui" %>
+              <%= hidden_field_tag :enabled, (!@live_ui_enabled).to_s %>
+              <div class="form-check form-switch" style="transform: scale(1.4); padding-left: 3rem;">
+                <input class="form-check-input cursor-pointer" type="checkbox"
+                       role="switch" id="liveUiToggle"
+                       <%= "checked" if @live_ui_enabled %>
+                       onchange="this.closest('form').submit();">
+              </div>
+            <% end %>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <% if @live_ui_enabled %>
+      <div class="card shadow-sm border-success mb-4">
+        <div class="card-body">
+          <h6 class="text-success"><i class="bi bi-lightning-charge-fill me-1"></i> How It Works</h6>
+          <ol class="mb-0 small text-muted">
+            <li class="mb-1">A floating <strong>OnAir toolbar</strong> appears at the bottom-right of every page for signed-in translators.</li>
+            <li class="mb-1">Click the pencil icon to activate <strong>edit mode</strong> &mdash; all translatable text gets a subtle highlight.</li>
+            <li class="mb-1">Click any highlighted text to open an <strong>inline editor</strong>.</li>
+            <li class="mb-1">Edit the value and press <strong>Save</strong> &mdash; the translation is updated in the <%= RailsI18nOnair.configuration.database_mode? ? "database" : "YAML file" %> immediately.</li>
+          </ol>
+        </div>
+      </div>
+    <% end %>
+
+    <!-- Storage Mode (read-only) -->
+    <div class="card shadow-sm mb-4">
+      <div class="card-body">
+        <div class="d-flex justify-content-between align-items-center">
+          <div>
+            <h5 class="mb-1"><i class="bi bi-server me-1"></i> Storage Mode</h5>
+            <p class="text-muted mb-0 small">
+              Configured in <code>config/initializers/rails_i18n_onair.rb</code>. Requires app restart to change.
+            </p>
+          </div>
+          <% if storage_mode_is_database? %>
+            <span class="badge mode-database" style="font-size: 0.85rem; padding: 8px 16px;">
+              <i class="bi bi-database-fill me-1"></i> Database
+            </span>
+          <% else %>
+            <span class="badge mode-file" style="font-size: 0.85rem; padding: 8px 16px;">
+              <i class="bi bi-folder-fill me-1"></i> File
+            </span>
+          <% end %>
+        </div>
+      </div>
+    </div>
+
+    <!-- Cache (read-only) -->
+    <div class="card shadow-sm mb-4">
+      <div class="card-body">
+        <div class="d-flex justify-content-between align-items-center">
+          <div>
+            <h5 class="mb-1"><i class="bi bi-speedometer me-1"></i> Translation Caching</h5>
+            <p class="text-muted mb-0 small">
+              Caches translated values for faster lookups. Configured in the initializer.
+            </p>
+          </div>
+          <% if RailsI18nOnair.configuration.cache_translations %>
+            <span class="badge bg-success" style="font-size: 0.85rem; padding: 8px 16px;">Enabled</span>
+          <% else %>
+            <span class="badge bg-secondary" style="font-size: 0.85rem; padding: 8px 16px;">Disabled</span>
+          <% end %>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Sidebar info -->
+  <div class="col-lg-4">
+    <div class="card shadow-sm border-info">
+      <div class="card-header bg-info text-white">
+        <h6 class="mb-0"><i class="bi bi-info-circle me-1"></i> About Settings</h6>
+      </div>
+      <div class="card-body small">
+        <p>
+          <strong>Storage Mode</strong> and <strong>Caching</strong> are set in your Rails initializer
+          and require a server restart to change.
+        </p>
+        <hr>
+        <p class="mb-0">
+          <strong>Live UI</strong> can be toggled at runtime &mdash; it takes effect immediately
+          across all pages.
+        </p>
+      </div>
+    </div>
+  </div>
+</div>

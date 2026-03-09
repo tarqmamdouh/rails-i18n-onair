@@ -17,4 +17,13 @@ RailsI18nOnair::Engine.routes.draw do
       post :reload
     end
   end
+
+  # Settings
+  get "/settings", to: "settings#index", as: "settings"
+  patch "/settings", to: "settings#update"
+
+  # Live UI API (called by the injected Live UI script in the host app)
+  namespace :api do
+    patch "/live_translations/:locale", to: "live_translations#update", as: "live_translation"
+  end
 end
