@@ -18,6 +18,13 @@ RailsI18nOnair::Engine.routes.draw do
     end
   end
 
+  # Sync Locales
+  resources :sync_locales, only: [:new, :create], controller: "sync" do
+    collection do
+      post :preview
+    end
+  end
+
   # Settings
   get "/settings", to: "settings#index", as: "settings"
   patch "/settings", to: "settings#update"

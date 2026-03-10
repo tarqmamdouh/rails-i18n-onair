@@ -30,28 +30,6 @@
 </div>
 
 <div class="row mb-4">
-  <div class="col-12">
-    <div class="card shadow-sm">
-      <div class="card-header bg-success text-white">
-        <h5 class="mb-0"><i class="bi bi-lightning-charge"></i> Quick Actions</h5>
-      </div>
-      <div class="card-body">
-        <div class="d-grid gap-2 d-md-flex">
-          <%= link_to locale_files_path, class: "btn btn-primary" do %>
-            <i class="bi bi-folder-open me-2"></i> Browse Files
-          <% end %>
-          <% if RailsI18nOnair.configuration.database_mode? %>
-            <%= button_to sync_locale_files_path, class: "btn btn-success" do %>
-              <i class="bi bi-arrow-repeat me-2"></i> Sync Files to Database
-            <% end %>
-          <% end %>
-        </div>
-      </div>
-    </div>
-  </div>
-</div>
-
-<div class="row mb-4">
   <div class="col-md-8">
     <div class="card shadow-sm">
       <div class="card-header bg-primary text-white">

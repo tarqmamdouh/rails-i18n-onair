@@ -1,0 +1,95 @@
+<div class="dashboard-header mb-4">
+  <h1><i class="bi bi-arrow-left-right"></i> Sync Locales</h1>
+  <p class="text-muted">
+    Comparing <strong><%= @source.upcase %></strong> (source) with <strong><%= @destination.upcase %></strong> (destination).
+  </p>
+</div>
+
+<div class="row mb-4">
+  <div class="col-md-8">
+    <div class="card shadow-sm">
+      <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
+        <h5 class="mb-0"><i class="bi bi-search"></i> Comparison Results</h5>
+        <span class="badge bg-light text-dark"><%= @missing_keys.count %> missing key(s)</span>
+      </div>
+      <div class="card-body">
+        <% if @missing_keys.empty? %>
+          <div class="alert alert-success mb-0">
+            <i class="bi bi-check-circle me-2"></i>
+            <strong><%= @destination.upcase %></strong> is fully in sync with <strong><%= @source.upcase %></strong>. No missing keys found.
+          </div>
+        <% else %>
+          <div class="alert alert-warning">
+            <i class="bi bi-exclamation-triangle me-2"></i>
+            Found <strong><%= @missing_keys.count %></strong> key(s) in <strong><%= @source.upcase %></strong> that are missing in <strong><%= @destination.upcase %></strong>.
+          </div>
+
+          <div class="table-responsive">
+            <table class="table table-hover table-sm">
+              <thead class="table-light">
+                <tr>
+                  <th style="width: 5%">#</th>
+                  <th style="width: 50%">Key</th>
+                  <th style="width: 45%">Source Value (<%= @source.upcase %>)</th>
+                </tr>
+              </thead>
+              <tbody>
+                <% @missing_keys.each_with_index do |entry, index| %>
+                  <tr>
+                    <td class="text-muted"><%= index + 1 %></td>
+                    <td><code><%= entry[:key] %></code></td>
+                    <td class="text-muted small"><%= truncate(entry[:value].to_s, length: 80) %></td>
+                  </tr>
+                <% end %>
+              </tbody>
+            </table>
+          </div>
+
+          <%= form_tag sync_locales_path, method: :post do %>
+            <%= hidden_field_tag :source, @source %>
+            <%= hidden_field_tag :destination, @destination %>
+            <div class="d-flex gap-2">
+              <%= submit_tag "Sync #{@missing_keys.count} Key(s) to #{@destination.upcase}", class: "btn btn-success btn-lg" %>
+              <%= link_to new_sync_locale_path, class: "btn btn-outline-secondary btn-lg" do %>
+                <i class="bi bi-arrow-counterclockwise me-1"></i> Start Over
+              <% end %>
+            </div>
+          <% end %>
+        <% end %>
+      </div>
+    </div>
+  </div>
+
+  <div class="col-md-4">
+    <div class="card shadow-sm">
+      <div class="card-header bg-dark text-white">
+        <h6 class="mb-0"><i class="bi bi-diagram-3"></i> Sync Summary</h6>
+      </div>
+      <div class="card-body">
+        <ul class="list-unstyled mb-0">
+          <li class="mb-3">
+            <small class="text-muted d-block">Source</small>
+            <span class="badge bg-primary fs-6"><%= @source.upcase %></span>
+          </li>
+          <li class="mb-3">
+            <small class="text-muted d-block">Destination</small>
+            <span class="badge bg-warning text-dark fs-6"><%= @destination.upcase %></span>
+          </li>
+          <li>
+            <small class="text-muted d-block">Missing Keys</small>
+            <span class="badge <%= @missing_keys.empty? ? 'bg-success' : 'bg-danger' %> fs-6"><%= @missing_keys.count %></span>
+          </li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="card shadow-sm mt-3 border-warning">
+      <div class="card-body">
+        <p class="card-text small mb-0">
+          <i class="bi bi-lightbulb text-warning me-1"></i>
+          Syncing will copy the <strong>source values</strong> (usually in the source language) into the destination. You can then translate them afterwards via the dashboard or Live UI.
+        </p>
+      </div>
+    </div>
+  </div>
+</div>
