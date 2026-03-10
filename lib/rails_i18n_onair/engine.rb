@@ -21,9 +21,7 @@ module RailsI18nOnair
     # wraps output in editable <span> tags when a translator is signed in.
     initializer "rails_i18n_onair.live_ui_helper" do
       ActiveSupport.on_load(:action_view) do
-        ActionView::Helpers::TranslationHelper.prepend(
-          RailsI18nOnair::LiveUi::TranslationHelper
-        )
+        prepend RailsI18nOnair::LiveUi::TranslationHelper
       end
     end
 

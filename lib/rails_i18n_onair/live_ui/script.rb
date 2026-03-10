@@ -81,13 +81,13 @@ module RailsI18nOnair
 
           /* Editable highlights */
           [data-i18n-onair="true"][data-i18n-onair-editing="true"]{
-            outline:2px dashed rgba(102,126,234,.5)!important;
+            outline:2px dotted orange!important;
             outline-offset:2px!important;border-radius:3px!important;
             cursor:pointer!important;transition:outline-color .15s!important;
           }
           [data-i18n-onair="true"][data-i18n-onair-editing="true"]:hover{
-            outline-color:rgba(118,75,162,.9)!important;
-            background:rgba(102,126,234,.08)!important;
+            outline-color:darkorange!important;
+            background:rgba(255,165,0,.08)!important;
           }
 
           /* ── Popover editor ── */
