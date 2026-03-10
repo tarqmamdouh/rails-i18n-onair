@@ -259,7 +259,8 @@ module RailsI18nOnair
 
               var key    = span.getAttribute("data-i18n-key");
               var locale = span.getAttribute("data-i18n-locale");
-              var value  = span.textContent;
+              var raw    = span.getAttribute("data-i18n-raw");
+              var value  = raw || span.textContent;
 
               var el = document.createElement("div");
               el.setAttribute("data-i18n-onair-editor","");
@@ -360,7 +361,20 @@ module RailsI18nOnair
               .then(function(res){ return res.json().then(function(d){ return {ok:res.ok,data:d}; }); })
               .then(function(r){
                 if(r.ok){
-                  span.textContent = value;
+                  // Interpolate %{vars} client-side so the span shows the rendered text
+                  var display = value;
+                  var varsJson = span.getAttribute("data-i18n-vars");
+                  if(varsJson){
+                    try{
+                      var vars = JSON.parse(varsJson);
+                      for(var k in vars){
+                        display = display.replace(new RegExp("%\\{" + k + "\\}", "g"), vars[k]);
+                      }
+                    }catch(e){}
+                  }
+                  span.textContent = display;
+                  // Update the raw template attribute
+                  if(span.hasAttribute("data-i18n-raw")) span.setAttribute("data-i18n-raw", value);
                   closeEditor();
                   showToast("Translation saved!", "success");
                 } else {
