@@ -24,6 +24,7 @@ Gem::Specification.new do |spec|
   spec.add_dependency "rails-i18n", ">= 6.0"
   spec.add_dependency "bcrypt", "~> 3.1"
   spec.add_dependency "bootstrap", "~> 5.3"
+  spec.add_dependency "rubyzip", "~> 2.3"
 
   spec.add_development_dependency "rspec-rails", "~> 5.0"
   spec.add_development_dependency "sqlite3", "~> 1.4"

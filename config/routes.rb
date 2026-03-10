@@ -25,6 +25,9 @@ RailsI18nOnair::Engine.routes.draw do
     end
   end
 
+  # Download all translations as ZIP
+  get "/download_all", to: "downloads#all", as: "download_all"
+
   # Settings
   get "/settings", to: "settings#index", as: "settings"
   patch "/settings", to: "settings#update"
