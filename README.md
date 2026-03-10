@@ -109,11 +109,9 @@ RailsI18nOnair.configure do |config|
   # Default: "config/locales"
   config.locale_files_path = "config/locales"
 
-  # Enable the backend to intercept t() calls in views and controllers
-  # When enabled, the gem installs a custom I18n backend that delegates
-  # to either the database or file backend based on storage_mode
+  # Enable Live UI inline editing (requires translator sign-in)
   # Default: false
-  config.enable_backend = false
+  config.live_ui = false
 
   # Enable caching of translations (recommended for production)
   # Default: true
@@ -147,7 +145,6 @@ Stores translations in PostgreSQL with JSONB. Perfect for:
 
 ```ruby
 config.storage_mode = :database
-config.enable_backend = true
 ```
 
 **Note:** Database mode requires PostgreSQL for JSONB support.
@@ -275,6 +272,43 @@ custom_importer.import_all
 - `created_at`, `updated_at`
 - Index on `language` (unique)
 - GIN index on `translation` for fast JSONB queries
+
+## Live UI
+
+Live UI allows translators to edit translations directly on the page. When enabled and a translator is signed in, every `t()` call in your views wraps its output in an editable `<span>` tag. A floating toolbar lets translators toggle edit mode, click on any translation, and save changes instantly.
+
+### Limitations
+
+Live UI works by wrapping the output of the view helper `t()` / `translate()` in a `<span>` tag. This means it **cannot** handle translations that are used as HTML attribute values rather than as visible text content.
+
+**What works:**
+- `= t("welcome.title")` in your views/partials
+- Any explicit `t()` call that outputs directly into the page body
+
+**What does NOT work:**
+
+- **`form.submit`** — Rails puts the translated text into the `value` attribute of an `<input>` tag. The `<span>` gets HTML-escaped instead of rendered.
+- **`form.label`** with automatic `helpers.label.*` lookups — same issue, text ends up in an attribute.
+- **Any Rails helper** that uses `I18n.t()` internally to populate HTML attributes (placeholders, titles, etc.)
+
+**Workarounds:**
+
+Use `form.button` instead of `form.submit` so the translation renders as HTML content inside the tag:
+
+```haml
+-# Instead of this (broken with Live UI):
+= form.submit t("helpers.submit.movie.create")
+
+-# Use this (works with Live UI):
+= form.button type: :submit, class: "btn btn-primary" do
+  = t("helpers.submit.movie.create")
+```
+
+For cases where you can't avoid attribute context, opt out per-key:
+
+```ruby
+t("some.key", i18n_onair: false)
+```
 
 ## Development
 

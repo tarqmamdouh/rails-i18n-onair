@@ -38,8 +38,8 @@ module RailsI18nOnair
       end
 
       def update_database_translation(locale, full_key, value)
-        record = RailsI18nOnair::Translation.load_locale(locale)
-        return false unless record
+        record = RailsI18nOnair::Translation.load_locale(locale) ||
+                 RailsI18nOnair::Translation.create!(locale: locale, translations: { locale => {} })
 
         record.set_translation(full_key, value)
 
@@ -59,10 +59,13 @@ module RailsI18nOnair
         file_manager = RailsI18nOnair::FileManager.new
         filename = "#{locale}.yml"
         content  = file_manager.read_file(filename)
-        return false unless content
 
-        data = YAML.safe_load(content, permitted_classes: [Symbol], aliases: true)
-        return false unless data.is_a?(Hash)
+        data = if content
+                 YAML.safe_load(content, permitted_classes: [Symbol], aliases: true) || {}
+               else
+                 {}
+               end
+        data = {} unless data.is_a?(Hash)
 
         # Navigate to the correct nested key and update the value
         keys = [locale, *key_path.split(".")].map(&:to_s)
