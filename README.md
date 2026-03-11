@@ -2,13 +2,13 @@
 
 ![Rails I18n OnAir](app/assets/images/rails_i18n_onair/banner.svg)
 
-A comprehensive i18n management solution for Rails monolith applications.
+A comprehensive i18n management solution for Rails monolith applications. Browse, edit, sync, and live-edit translations from a web dashboard or directly on the page.
 
 ## Requirements
 
-- Ruby 2.7.5+
+- Ruby 2.7.2+
 - Rails 6.0+
-- PostgreSQL (for JSONB support)
+- PostgreSQL (for JSONB support in database mode)
 
 ## Installation
 
@@ -18,7 +18,7 @@ Add this line to your application's Gemfile:
 gem "rails_i18n_onair"
 ```
 
-And then execute:
+Then run:
 
 ```bash
 $ bundle install
@@ -35,16 +35,14 @@ $ rails generate rails_i18n_onair:install
 This interactive installer will:
 
 1. Create an initializer at `config/initializers/rails_i18n_onair.rb`
-2. Ask you to choose storage mode (file or database)
+2. Ask you to choose a storage mode (file or database)
 3. Install the translator migration (always required for authentication)
-4. Install the translation migration (only if database mode selected)
+4. Install the translation migration (only if database mode is selected)
 5. Mount the engine at `/i18n` in your routes
 6. Prompt to run migrations
 7. Create an initial translator account so you can log in immediately
 
-### Advanced Install Options
-
-**Specify storage mode:**
+**Specify storage mode directly:**
 
 ```bash
 $ rails generate rails_i18n_onair:install --storage-mode=database
@@ -86,8 +84,6 @@ The install generator automatically mounts the engine, but if you need to do it 
 # config/routes.rb
 Rails.application.routes.draw do
   mount RailsI18nOnair::Engine, at: "/i18n"
-
-  # Your other routes...
 end
 ```
 
@@ -100,12 +96,11 @@ Configure the gem in `config/initializers/rails_i18n_onair.rb`:
 ```ruby
 RailsI18nOnair.configure do |config|
   # Storage mode for translations
-  # Options:
-  #   :file     - Use local YAML files (default, no database required)
-  #   :database - Use database storage (requires migrations)
+  # :file     — Use local YAML files (default, no database table required)
+  # :database — Use database storage with JSONB (requires PostgreSQL + migrations)
   config.storage_mode = :file
 
-  # Path to locale files when using file mode
+  # Path to locale files (used by file mode and import tasks)
   # Default: "config/locales"
   config.locale_files_path = "config/locales"
 
@@ -126,10 +121,11 @@ end
 ### Storage Modes
 
 #### File Mode (Default)
-Uses your existing YAML locale files in `config/locales/`. Perfect for:
+
+Uses your existing YAML locale files in `config/locales/`. Best for:
 - Small to medium applications
+- Keeping translations in version control
 - Apps with simple translation needs
-- When you want to keep translations in version control
 
 ```ruby
 config.storage_mode = :file
@@ -137,75 +133,138 @@ config.locale_files_path = "config/locales"
 ```
 
 #### Database Mode
-Stores translations in PostgreSQL with JSONB. Perfect for:
+
+Stores translations in PostgreSQL with JSONB. Best for:
 - Large applications with many translations
-- Dynamic translation management
-- When you need a web UI to manage translations
+- Dynamic translation management via the dashboard
 - Multi-tenant applications
 
 ```ruby
 config.storage_mode = :database
 ```
 
-**Note:** Database mode requires PostgreSQL for JSONB support.
+In database mode, I18n uses a chained backend: database lookup first, falling back to YAML files for any missing keys. Translations are cached at multiple levels (Rails cache, request-level, and in-memory) for performance.
 
-## Usage
+## Dashboard
 
-### Importing Locale Files to Database
+The web dashboard at `/i18n` provides:
 
-If you're using database mode, you can import your existing YAML locale files into the database:
+- **Browse translations** — View all translations by language (database mode) or by file (file mode)
+- **Edit translations** — Edit key-value pairs in a table UI with add/delete key support
+- **Sync locales** — Compare two locales and copy missing keys from one to the other
+- **Download all** — Download all translations as a ZIP archive
 
-#### Import All Locale Files
+## Live UI
+
+Live UI allows translators to edit translations directly on the page. When enabled and a translator is signed in, translatable text is highlighted and clickable. A floating toolbar lets translators toggle edit mode, click any translation, and save changes instantly.
+
+### Enabling Live UI
+
+```ruby
+# config/initializers/rails_i18n_onair.rb
+RailsI18nOnair.configure do |config|
+  config.live_ui = true
+end
+```
+
+Then sign in as a translator at `/i18n/login`. Once signed in, a floating toolbar appears on every page with an edit mode toggle.
+
+### How It Works
+
+Live UI operates through three layers that cover different translation contexts:
+
+#### View translations (`t()` in templates)
+
+The `TranslationHelper` is prepended to `ActionView::Helpers::TranslationHelper`. Every `t()` / `translate()` call in views and partials wraps its output in an editable `<span>` with data attributes:
+
+```html
+<span data-i18n-onair="true"
+      data-i18n-key="welcome.title"
+      data-i18n-locale="en"
+      style="display:contents">Welcome!</span>
+```
+
+The `display:contents` style ensures the `<span>` does not affect layout.
+
+For translations with interpolation variables (`%{name}`), the raw template and variable values are stored in additional data attributes so the editor can display the template for editing while the page shows the interpolated result.
+
+#### Form submit buttons (`f.submit`)
+
+The `FormHelper` is prepended to `ActionView::Helpers::FormBuilder`. When Live UI is active, `f.submit` renders a `<button>` instead of an `<input>`, allowing the translated label to be wrapped in an editable `<span>`:
+
+```html
+<!-- Without Live UI: -->
+<input type="submit" value="Create User">
+
+<!-- With Live UI: -->
+<button type="submit">
+  <span data-i18n-onair="true" data-i18n-key="helpers.submit.user.create" ...>
+    Create User
+  </span>
+</button>
+```
+
+When Live UI is off, `f.submit` falls through to the original Rails helper — zero overhead.
+
+#### Flash messages and controller translations
+
+The `ControllerHelper` is prepended to `AbstractController::Translation`. Controller-level `t()` calls (commonly used for flash messages) embed invisible Unicode markers around the translated text:
+
+```ruby
+flash[:notice] = t("user.created_successfully")
+# Internally stores: "⟦i18n:user.created_successfully:en⟧User created!⟦/i18n⟧"
+```
+
+These markers:
+- Survive flash session serialization (they are just string bytes)
+- Survive ERB HTML-escaping (Unicode mathematical brackets are not HTML-special characters)
+
+The middleware replaces these markers with editable `<span>` wrappers before the response reaches the browser. The user never sees the raw markers.
+
+### Edit Mode Persistence
+
+Edit mode state is persisted in `localStorage`. When a translator toggles edit mode on, it stays active across page navigations and reloads until explicitly toggled off.
+
+### Opting Out
+
+For cases where wrapping breaks the layout (e.g., translations used as HTML attribute values), opt out per-key:
+
+```ruby
+t("some.key", i18n_onair: false)
+```
+
+### Locale Handling
+
+If your application uses region-qualified locales in the URL (e.g., `en_FRA`, `pt-BR`), Live UI automatically strips the region and uses only the language code (`en`, `pt`) for file lookup and YAML key navigation. This matches the common convention of naming locale files `en.yml`, `fr.yml`, etc.
+
+## Importing Locale Files
+
+If you are using database mode, you can import your existing YAML locale files:
+
+### Import All
 
 ```bash
 $ rake rails_i18n_onair:import:all
 ```
 
-This will:
-- Scan the configured `locale_files_path` directory
-- Find all files matching the pattern `[language].yml` (e.g., `en.yml`, `fr.yml`, `es.yml`)
-- Import each file into the `translations` table
-- Skip files that don't match the naming convention
+This scans `config/locales/` for files matching `[language].yml` (e.g., `en.yml`, `fr.yml`, `en-US.yml`) and imports each into the database.
 
-**Supported file naming patterns:**
-- `en.yml` - English
-- `fr.yml` - French
-- `es.yml` - Spanish
-- `ar.yml` - Arabic
-- `en-US.yml` - English (United States)
-- `pt-BR.yml` - Portuguese (Brazil)
-
-**Example output:**
-```
-Importing locale files from: config/locales
-================================================================================
-
-Import Summary:
-  Imported: 3 file(s)
-  Skipped:  1 file(s)
-
-Errors:
-  - Skipped invalid_file.txt: Invalid file name format
-
-================================================================================
-Import completed!
-```
-
-#### Import a Specific Language
+### Import a Specific Language
 
 ```bash
 $ rake rails_i18n_onair:import:language[en]
 $ rake rails_i18n_onair:import:language[fr]
 ```
 
-### Models
+## Models
 
-#### Translator
-The `Translator` model handles authentication for the translation dashboard:
+### Translator
+
+Handles authentication for the dashboard and Live UI:
 
 ```ruby
 # Create a translator
-translator = RailsI18nOnair::Translator.create(
+RailsI18nOnair::Translator.create(
   username: "admin",
   password: "secure_password"
 )
@@ -214,101 +273,48 @@ translator = RailsI18nOnair::Translator.create(
 translator.authenticate("secure_password")
 ```
 
-#### Translation
-The `Translation` model stores translations in JSONB format:
+Password minimum length: 6 characters.
+
+### Translation (database mode)
+
+Stores translations in JSONB format:
 
 ```ruby
-# Import from YAML file
-RailsI18nOnair::Translation.import_from_yaml("en", "config/locales/en.yml")
-
-# Find translation by language
+# Find by language
 translation = RailsI18nOnair::Translation.find_by(language: "en")
 
-# Get a specific translation value
-translation.get_translation("user.name")  # => "Name"
+# Lookup a specific key
+translation.get_translation("user.name") # => "Name"
 
-# Set a translation value
+# Set a specific key
 translation.set_translation("user.name", "Full Name")
 
 # Merge new translations
 translation.merge_translations({ "new_key" => "New Value" })
 
+# Import from YAML file
+RailsI18nOnair::Translation.import_from_yaml("en", "config/locales/en.yml")
+
 # Export to YAML
 translation.export_to_yaml
 
-# Get all available languages
-RailsI18nOnair::Translation.available_languages  # => ["en", "fr", "es"]
+# Available languages
+RailsI18nOnair::Translation.available_languages # => ["en", "fr", "es"]
 ```
 
-#### Using the Importer Directly
-
-```ruby
-# Import all locale files
-importer = RailsI18nOnair::Importer.new
-result = importer.import_all
-
-puts "Imported: #{result[:imported]}"
-puts "Skipped: #{result[:skipped]}"
-puts "Errors: #{result[:errors]}"
-
-# Import a specific language
-importer.import_language("en")
-
-# Use custom locale path
-custom_importer = RailsI18nOnair::Importer.new("custom/path/to/locales")
-custom_importer.import_all
-```
-
-### Database Schema
+## Database Schema
 
 **Translators Table:**
 - `username` (string, unique, required)
 - `password_digest` (string, required)
 - `created_at`, `updated_at`
 
-**Translations Table:**
+**Translations Table (database mode only):**
 - `language` (string, unique, required)
-- `translation` (jsonb, required, default: {})
+- `translation` (jsonb, required, default: `{}`)
 - `created_at`, `updated_at`
-- Index on `language` (unique)
+- Unique index on `language`
 - GIN index on `translation` for fast JSONB queries
-
-## Live UI
-
-Live UI allows translators to edit translations directly on the page. When enabled and a translator is signed in, every `t()` call in your views wraps its output in an editable `<span>` tag. A floating toolbar lets translators toggle edit mode, click on any translation, and save changes instantly.
-
-### Limitations
-
-Live UI works by wrapping the output of the view helper `t()` / `translate()` in a `<span>` tag. This means it **cannot** handle translations that are used as HTML attribute values rather than as visible text content.
-
-**What works:**
-- `= t("welcome.title")` in your views/partials
-- Any explicit `t()` call that outputs directly into the page body
-
-**What does NOT work:**
-
-- **`form.submit`** — Rails puts the translated text into the `value` attribute of an `<input>` tag. The `<span>` gets HTML-escaped instead of rendered.
-- **`form.label`** with automatic `helpers.label.*` lookups — same issue, text ends up in an attribute.
-- **Any Rails helper** that uses `I18n.t()` internally to populate HTML attributes (placeholders, titles, etc.)
-
-**Workarounds:**
-
-Use `form.button` instead of `form.submit` so the translation renders as HTML content inside the tag:
-
-```haml
--# Instead of this (broken with Live UI):
-= form.submit t("helpers.submit.movie.create")
-
--# Use this (works with Live UI):
-= form.button type: :submit, class: "btn btn-primary" do
-  = t("helpers.submit.movie.create")
-```
-
-For cases where you can't avoid attribute context, opt out per-key:
-
-```ruby
-t("some.key", i18n_onair: false)
-```
 
 ## Development
 
