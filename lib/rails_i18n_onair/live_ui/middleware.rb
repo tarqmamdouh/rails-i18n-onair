@@ -11,20 +11,25 @@ module RailsI18nOnair
         # Fast exit: skip all work when Live UI is off
         return @app.call(env) unless RailsI18nOnair.configuration.live_ui?
 
+        translator = translator_signed_in?(env)
+
         # Determine if this request should get Live UI treatment.
         # Set the flag via CurrentAttributes BEFORE the app renders —
         # the t() helper reads Current.live_ui_active during view rendering.
         active = env["REQUEST_METHOD"] == "GET" &&
                  !engine_request?(env) &&
-                 translator_signed_in?(env)
+                 translator
 
         RailsI18nOnair::Current.live_ui_active = active
 
         status, headers, response = @app.call(env)
 
-        if active && status == 200 && html_response?(headers)
+        if translator && status == 200 && html_response?(headers)
           body = collect_body(response)
-          body = inject_live_ui(body)
+          # Replace ⟦i18n:key:locale⟧text⟦/i18n⟧ markers from controller t()
+          # calls (flash messages, etc.) with editable <span> wrappers.
+          body = replace_i18n_markers(body)
+          body = inject_live_ui(body) if active
           headers["Content-Length"] = body.bytesize.to_s
           [status, headers, [body]]
         else
@@ -56,6 +61,19 @@ module RailsI18nOnair
         parts = []
         response.each { |chunk| parts << chunk }
         parts.join
+      end
+
+      # Replace ⟦i18n:key:locale⟧text⟦/i18n⟧ markers with editable <span> wrappers.
+      # Markers are embedded by ControllerHelper#translate for flash messages, etc.
+      I18N_MARKER_PATTERN = /\u27E6i18n:(.+?):(.+?)\u27E7(.+?)\u27E6\/i18n\u27E7/m
+
+      def replace_i18n_markers(html)
+        html.gsub(I18N_MARKER_PATTERN) do
+          key    = Rack::Utils.escape_html($1)
+          locale = Rack::Utils.escape_html($2)
+          text   = $3
+          %(<span data-i18n-onair="true" data-i18n-key="#{key}" data-i18n-locale="#{locale}" style="display:contents">#{text}</span>)
+        end
       end
 
       def inject_live_ui(html)

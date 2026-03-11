@@ -177,7 +177,8 @@ module RailsI18nOnair
             var API = "#{mount_path}/api/live_translations";
             var CSRF = (document.querySelector('meta[name="csrf-token"]') || {}).content || "";
 
-            var editMode = false;
+            var STORAGE_KEY = "i18n_onair_edit_mode";
+            var editMode = localStorage.getItem(STORAGE_KEY) === "true";
             var editorEl = null;   // current popover
             var activeSpan = null; // span being edited
 
@@ -217,10 +218,18 @@ module RailsI18nOnair
               var sw = panel.querySelector("[data-i18n-onair-switch]");
               sw.addEventListener("click", function(){
                 editMode = !editMode;
+                localStorage.setItem(STORAGE_KEY, editMode ? "true" : "false");
                 sw.setAttribute("data-on", editMode ? "true" : "false");
                 toggleEditableHighlights(editMode);
                 if(!editMode) closeEditor();
               });
+
+              // Restore persisted edit mode state
+              if(editMode){
+                sw.setAttribute("data-on", "true");
+                panel.setAttribute("data-visible", "true");
+                toggleEditableHighlights(true);
+              }
 
               document.body.appendChild(root);
             }
