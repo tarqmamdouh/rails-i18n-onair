@@ -19,7 +19,9 @@ module RailsI18nOnair
 
         # Resolve lazy keys (.title → controller.action.title)
         resolved_key = scope_key_by_partial(key)
-        locale = options[:locale] || I18n.locale
+        # Strip region/variant: "en_FRA" → "en", "pt-BR" → "pt"
+        # Locale files use language-only keys (en.yml, fr.yml, etc.)
+        locale = (options[:locale] || I18n.locale).to_s.split(/[-_]/).first
 
         result = super
 

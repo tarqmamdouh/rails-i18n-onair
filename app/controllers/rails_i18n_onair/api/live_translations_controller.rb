@@ -4,7 +4,7 @@ module RailsI18nOnair
       before_action :require_live_ui_enabled
 
       def update
-        locale = params[:locale]
+        locale = normalize_locale(params[:locale])
         key    = params[:key]
         value  = params[:value]
 
@@ -30,6 +30,12 @@ module RailsI18nOnair
       end
 
       private
+
+      # Strip region/variant from locale: "en_FRA" → "en", "pt-BR" → "pt"
+      # Translation files use language-only keys (en.yml, fr.yml, etc.)
+      def normalize_locale(locale)
+        locale.to_s.split(/[-_]/).first
+      end
 
       def require_live_ui_enabled
         unless RailsI18nOnair.configuration.live_ui?
