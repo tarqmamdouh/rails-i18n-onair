@@ -7,5 +7,5 @@ gem "puma"
 
 group :development, :test do
   gem "rspec-rails"
-  gem "sqlite3", "~> 1.4.0"
+  gem "sqlite3", ">= 2.1"
 end
