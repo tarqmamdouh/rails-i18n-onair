@@ -69,6 +69,6 @@ RSpec.configure do |config|
 
   config.before(:each) do
     RailsI18nOnair.reset_configuration!
-    RailsI18nOnair::Current.reset_all if defined?(RailsI18nOnair::Current)
+    RailsI18nOnair::Current.reset if defined?(RailsI18nOnair::Current)
   end
 end
