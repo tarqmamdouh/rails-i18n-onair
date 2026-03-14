@@ -18,6 +18,16 @@ RailsI18nOnair::Engine.routes.draw do
     end
   end
 
+  # Sync Locales
+  resources :sync_locales, only: [:new, :create], controller: "sync" do
+    collection do
+      post :preview
+    end
+  end
+
+  # Download all translations as ZIP
+  get "/download_all", to: "downloads#all", as: "download_all"
+
   # Settings
   get "/settings", to: "settings#index", as: "settings"
   patch "/settings", to: "settings#update"

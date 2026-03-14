@@ -550,8 +550,8 @@ Indexes: unique on `language`, GIN on `translation` (fast JSONB key lookup).
 ## Development
 
 ```bash
-git clone https://github.com/yourusername/rails_i18n_onair
-cd rails_i18n_onair
+git clone https://github.com/tarqmamdouh/rails-i18n-onair
+cd rails-i18n-onair
 bundle install
 bundle exec rspec
 ```
@@ -562,7 +562,7 @@ The test suite uses SQLite in-memory — no PostgreSQL needed locally. For a pro
 
 ## Contributing
 
-Bug reports and pull requests are welcome on GitHub at [github.com/yourusername/rails_i18n_onair](https://github.com/yourusername/rails_i18n_onair).
+Bug reports and pull requests are welcome on GitHub at [github.com/tarqmamdouh/rails-i18n-onair](https://github.com/tarqmamdouh/rails-i18n-onair)
 
 1. Fork the repo
 2. Create a feature branch (`git checkout -b feature/my-feature`)

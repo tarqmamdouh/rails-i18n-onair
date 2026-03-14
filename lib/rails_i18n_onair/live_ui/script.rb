@@ -81,13 +81,13 @@ module RailsI18nOnair
 
           /* Editable highlights */
           [data-i18n-onair="true"][data-i18n-onair-editing="true"]{
-            outline:2px dashed rgba(102,126,234,.5)!important;
+            outline:2px dotted orange!important;
             outline-offset:2px!important;border-radius:3px!important;
             cursor:pointer!important;transition:outline-color .15s!important;
           }
           [data-i18n-onair="true"][data-i18n-onair-editing="true"]:hover{
-            outline-color:rgba(118,75,162,.9)!important;
-            background:rgba(102,126,234,.08)!important;
+            outline-color:darkorange!important;
+            background:rgba(255,165,0,.08)!important;
           }
 
           /* ── Popover editor ── */
@@ -177,7 +177,8 @@ module RailsI18nOnair
             var API = "#{mount_path}/api/live_translations";
             var CSRF = (document.querySelector('meta[name="csrf-token"]') || {}).content || "";
 
-            var editMode = false;
+            var STORAGE_KEY = "i18n_onair_edit_mode";
+            var editMode = localStorage.getItem(STORAGE_KEY) === "true";
             var editorEl = null;   // current popover
             var activeSpan = null; // span being edited
 
@@ -217,10 +218,18 @@ module RailsI18nOnair
               var sw = panel.querySelector("[data-i18n-onair-switch]");
               sw.addEventListener("click", function(){
                 editMode = !editMode;
+                localStorage.setItem(STORAGE_KEY, editMode ? "true" : "false");
                 sw.setAttribute("data-on", editMode ? "true" : "false");
                 toggleEditableHighlights(editMode);
                 if(!editMode) closeEditor();
               });
+
+              // Restore persisted edit mode state
+              if(editMode){
+                sw.setAttribute("data-on", "true");
+                panel.setAttribute("data-visible", "true");
+                toggleEditableHighlights(true);
+              }
 
               document.body.appendChild(root);
             }
@@ -259,7 +268,8 @@ module RailsI18nOnair
 
               var key    = span.getAttribute("data-i18n-key");
               var locale = span.getAttribute("data-i18n-locale");
-              var value  = span.textContent;
+              var raw    = span.getAttribute("data-i18n-raw");
+              var value  = raw || span.textContent;
 
               var el = document.createElement("div");
               el.setAttribute("data-i18n-onair-editor","");
@@ -360,7 +370,20 @@ module RailsI18nOnair
               .then(function(res){ return res.json().then(function(d){ return {ok:res.ok,data:d}; }); })
               .then(function(r){
                 if(r.ok){
-                  span.textContent = value;
+                  // Interpolate %{vars} client-side so the span shows the rendered text
+                  var display = value;
+                  var varsJson = span.getAttribute("data-i18n-vars");
+                  if(varsJson){
+                    try{
+                      var vars = JSON.parse(varsJson);
+                      for(var k in vars){
+                        display = display.replace(new RegExp("%\\{" + k + "\\}", "g"), vars[k]);
+                      }
+                    }catch(e){}
+                  }
+                  span.textContent = display;
+                  // Update the raw template attribute
+                  if(span.hasAttribute("data-i18n-raw")) span.setAttribute("data-i18n-raw", value);
                   closeEditor();
                   showToast("Translation saved!", "success");
                 } else {

@@ -21,9 +21,20 @@ module RailsI18nOnair
     # wraps output in editable <span> tags when a translator is signed in.
     initializer "rails_i18n_onair.live_ui_helper" do
       ActiveSupport.on_load(:action_view) do
-        ActionView::Helpers::TranslationHelper.prepend(
-          RailsI18nOnair::LiveUi::TranslationHelper
-        )
+        prepend RailsI18nOnair::LiveUi::TranslationHelper
+      end
+
+      # Override f.submit to render <button> instead of <input> so the
+      # translated label can be wrapped in an editable <span>.
+      ActionView::Helpers::FormBuilder.prepend RailsI18nOnair::LiveUi::FormHelper
+    end
+
+    # Override controller t() so flash messages and other controller-level
+    # translations carry i18n markers that the middleware converts to
+    # editable <span> wrappers.
+    initializer "rails_i18n_onair.live_ui_controller_helper" do
+      ActiveSupport.on_load(:action_controller) do
+        prepend RailsI18nOnair::LiveUi::ControllerHelper
       end
     end
 

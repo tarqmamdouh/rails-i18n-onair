@@ -16,6 +16,10 @@
       <% end %>
     <% end %>
 
+    <%= link_to new_sync_locale_path, class: "list-group-item list-group-item-action #{current_page?(new_sync_locale_path) ? 'active' : ''}" do %>
+      <i class="bi bi-arrow-left-right me-2"></i> Sync Locales
+    <% end %>
+
     <%= link_to settings_path, class: "list-group-item list-group-item-action #{current_page?(settings_path) ? 'active' : ''}" do %>
       <i class="bi bi-gear me-2"></i> Settings
     <% end %>

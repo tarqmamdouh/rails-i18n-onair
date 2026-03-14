@@ -4,7 +4,7 @@ module RailsI18nOnair
       before_action :require_live_ui_enabled
 
       def update
-        locale = params[:locale]
+        locale = normalize_locale(params[:locale])
         key    = params[:key]
         value  = params[:value]
 
@@ -31,6 +31,12 @@ module RailsI18nOnair
 
       private
 
+      # Strip region/variant from locale: "en_FRA" → "en", "pt-BR" → "pt"
+      # Translation files use language-only keys (en.yml, fr.yml, etc.)
+      def normalize_locale(locale)
+        locale.to_s.split(/[-_]/).first
+      end
+
       def require_live_ui_enabled
         unless RailsI18nOnair.configuration.live_ui?
           render json: { error: "Live UI is not enabled" }, status: :forbidden
@@ -38,8 +44,8 @@ module RailsI18nOnair
       end
 
       def update_database_translation(locale, full_key, value)
-        record = RailsI18nOnair::Translation.load_locale(locale)
-        return false unless record
+        record = RailsI18nOnair::Translation.load_locale(locale) ||
+                 RailsI18nOnair::Translation.create!(locale: locale, translations: { locale => {} })
 
         record.set_translation(full_key, value)
 
@@ -59,10 +65,13 @@ module RailsI18nOnair
         file_manager = RailsI18nOnair::FileManager.new
         filename = "#{locale}.yml"
         content  = file_manager.read_file(filename)
-        return false unless content
 
-        data = YAML.safe_load(content, permitted_classes: [Symbol], aliases: true)
-        return false unless data.is_a?(Hash)
+        data = if content
+                 YAML.safe_load(content, permitted_classes: [Symbol], aliases: true) || {}
+               else
+                 {}
+               end
+        data = {} unless data.is_a?(Hash)
 
         # Navigate to the correct nested key and update the value
         keys = [locale, *key_path.split(".")].map(&:to_s)

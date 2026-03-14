@@ -19,18 +19,40 @@ module RailsI18nOnair
 
         # Resolve lazy keys (.title → controller.action.title)
         resolved_key = scope_key_by_partial(key)
-        locale = options[:locale] || I18n.locale
+        # Strip region/variant: "en_FRA" → "en", "pt-BR" → "pt"
+        # Locale files use language-only keys (en.yml, fr.yml, etc.)
+        locale = (options[:locale] || I18n.locale).to_s.split(/[-_]/).first
+
         result = super
 
-        # Wrap the translated value in a <span> the Live UI JS can target
+        # Fetch the raw template (with %{vars} intact) for the editor.
+        # Only needed when interpolation variables are present in options.
+        i18n_reserved = [:scope, :default, :separator, :resolve, :object, :fallback, :format, :cascade, :throw, :raise, :locale, :exception_handler]
+        has_interpolation = (options.keys - i18n_reserved).any?
+
+        attrs = {
+          i18n_onair: "true",
+          i18n_key: resolved_key.to_s,
+          i18n_locale: locale.to_s
+        }
+
+        if has_interpolation
+          begin
+            raw_template = I18n.backend.translate(locale, resolved_key, {})
+            if raw_template.is_a?(String) && raw_template.include?("%{")
+              attrs[:i18n_raw] = raw_template
+              interp_vars = options.except(*i18n_reserved)
+              attrs[:i18n_vars] = interp_vars.to_json if interp_vars.any?
+            end
+          rescue
+            # Ignore — raw template not available
+          end
+        end
+
         content_tag(
           :span,
           result,
-          data: {
-            i18n_onair: "true",
-            i18n_key: resolved_key.to_s,
-            i18n_locale: locale.to_s
-          },
+          data: attrs,
           style: "display:contents"
         )
       end
