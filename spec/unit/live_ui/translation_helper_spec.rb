@@ -24,8 +24,8 @@ RSpec.describe RailsI18nOnair::LiveUi::TranslationHelper do
     host
   end
 
-  before { RailsI18nOnair::Current.reset_all }
-  after  { RailsI18nOnair::Current.reset_all }
+  before { RailsI18nOnair::Current.reset }
+  after  { RailsI18nOnair::Current.reset }
 
   # ── Fast path (Live UI inactive) ────────────────────────────────────────────
 

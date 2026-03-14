@@ -34,10 +34,10 @@ RSpec.describe RailsI18nOnair::LiveUi::Middleware do
     # Stub Script.render so tests are not dependent on its output
     allow(RailsI18nOnair::LiveUi::Script).to receive(:render).and_return("<script>onair</script>")
     # Reset CurrentAttributes between examples
-    RailsI18nOnair::Current.reset_all
+    RailsI18nOnair::Current.reset
   end
 
-  after { RailsI18nOnair::Current.reset_all }
+  after { RailsI18nOnair::Current.reset }
 
   # ── Fast path when Live UI is disabled ─────────────────────────────────────
 

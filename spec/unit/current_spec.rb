@@ -5,7 +5,7 @@ require "active_support/current_attributes"
 require "rails_i18n_onair/current"
 
 RSpec.describe RailsI18nOnair::Current do
-  after { described_class.reset_all }
+  after { described_class.reset }
 
   describe ".live_ui_active" do
     it "is nil by default" do
@@ -22,9 +22,9 @@ RSpec.describe RailsI18nOnair::Current do
       expect(described_class.live_ui_active).to be(false)
     end
 
-    it "is reset to nil after reset_all" do
+    it "is reset to nil after reset" do
       described_class.live_ui_active = true
-      described_class.reset_all
+      described_class.reset
       expect(described_class.live_ui_active).to be_nil
     end
   end
@@ -39,9 +39,9 @@ RSpec.describe RailsI18nOnair::Current do
       expect(described_class.translation_cache["en:hello"]).to eq("Hello")
     end
 
-    it "is reset to an empty hash after reset_all" do
+    it "is reset to an empty hash after reset" do
       described_class.translation_cache["en:hello"] = "Hello"
-      described_class.reset_all
+      described_class.reset
       expect(described_class.translation_cache).to eq({})
     end
 
