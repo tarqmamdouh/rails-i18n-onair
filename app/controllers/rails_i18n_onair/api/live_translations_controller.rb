@@ -44,8 +44,8 @@ module RailsI18nOnair
       end
 
       def update_database_translation(locale, full_key, value)
-        record = RailsI18nOnair::Translation.load_locale(locale) ||
-                 RailsI18nOnair::Translation.create!(locale: locale, translations: { locale => {} })
+        record = RailsI18nOnair::Translation.load_locale(locale)
+        return false unless record
 
         record.set_translation(full_key, value)
 
@@ -56,7 +56,7 @@ module RailsI18nOnair
 
         true
       rescue StandardError => e
-        Rails.logger.error "RailsI18nOnair LiveUI: DB save failed — #{e.message}"
+        Rails.logger&.error "RailsI18nOnair LiveUI: DB save failed — #{e.message}"
         false
       end
 
@@ -65,12 +65,9 @@ module RailsI18nOnair
         file_manager = RailsI18nOnair::FileManager.new
         filename = "#{locale}.yml"
         content  = file_manager.read_file(filename)
+        return false unless content
 
-        data = if content
-                 YAML.safe_load(content, permitted_classes: [Symbol], aliases: true) || {}
-               else
-                 {}
-               end
+        data = YAML.safe_load(content, permitted_classes: [Symbol], aliases: true) || {}
         data = {} unless data.is_a?(Hash)
 
         # Navigate to the correct nested key and update the value
@@ -82,7 +79,7 @@ module RailsI18nOnair
         node[last] = value
         file_manager.write_file(filename, data.to_yaml)
       rescue StandardError => e
-        Rails.logger.error "RailsI18nOnair LiveUI: file save failed — #{e.message}"
+        Rails.logger&.error "RailsI18nOnair LiveUI: file save failed — #{e.message}"
         false
       end
     end
